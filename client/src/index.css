@@ -1,0 +1,94 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "@fontsource-variable/inter";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* ImaniPay brand tokens */
+  --color-emerald: var(--emerald);
+  --color-emerald-foreground: var(--emerald-foreground);
+  --color-navy: var(--navy);
+  --color-navy-foreground: var(--navy-foreground);
+  --color-gold: var(--gold);
+  --color-slate-ink: var(--slate-ink);
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+}
+
+:root {
+  --radius: 0.75rem;
+
+  /* Brand */
+  --emerald: oklch(0.696 0.17 162.48);            /* #10B981 */
+  --emerald-foreground: oklch(1 0 0);
+  --navy: oklch(0.334 0.128 264.5);               /* #1E3A8A */
+  --navy-foreground: oklch(1 0 0);
+  --gold: oklch(0.771 0.16 70);                   /* #F59E0B */
+  --slate-ink: oklch(0.208 0.042 265.755);        /* #0F172A */
+  --canvas: oklch(0.984 0.008 247.858);           /* #F8FAFC */
+  --surface: oklch(1 0 0);                        /* #FFFFFF */
+
+  /* Semantic mappings */
+  --background: var(--canvas);
+  --foreground: var(--slate-ink);
+  --card: var(--surface);
+  --card-foreground: var(--slate-ink);
+  --popover: var(--surface);
+  --popover-foreground: var(--slate-ink);
+  --primary: var(--emerald);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.968 0.007 247.896);
+  --secondary-foreground: var(--slate-ink);
+  --muted: oklch(0.968 0.007 247.896);
+  --muted-foreground: oklch(0.554 0.046 257.417);
+  --accent: oklch(0.968 0.007 247.896);
+  --accent-foreground: var(--slate-ink);
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(1 0 0);
+  --border: oklch(0.929 0.013 255.508);
+  --input: oklch(0.929 0.013 255.508);
+  --ring: var(--emerald);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+}
