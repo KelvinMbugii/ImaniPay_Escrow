@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate} from "@tanstack/react-router";
+import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { Eye, EyeOff, Loader2, ShoppingBag, Tag } from "lucide-react";
@@ -19,19 +19,7 @@ type RegisterForm = {
     password: string;
 };
 
-export const route = createFileRoute("/register")({
-    head: () => ({
-        meta: [
-            { tittle: "Create Account - ImaniPay"},
-            { name: "description", content: "Create your secure ImaniPay escrow account in minutes."},
-            { property: "og:title", content: "Create Account - ImaniPay"},
-            { property: "og:description", content: "Create your secure ImaniPay escrow account in minutes."},
-        ],
-    }),
-    component: RegisterPage,
-});
-
-function RegisterPage() {
+export default function RegisterPage() {
     const [showPw, setShowPw] = useState(false);
     const [role, setRole] = useState<Role>("buyer");
     const { register: signup } = useAuth();
@@ -46,7 +34,7 @@ function RegisterPage() {
         try {
             await signup({...values, role});
             toast.success("Account created!");
-            navigate({ to: "/"});
+            navigate("/");
         } catch {
             toast.error("Registration failed. Try again.");
         }
@@ -114,7 +102,7 @@ function RegisterPage() {
               placeholder="you@example.com"
               {...register("email", {
                 required: "Required",
-                pattern: { value: /^\S+@\S+\.\S+S/, message: "Invalid email" },
+                pattern: { value: /^\S+@\S+\.\S+$/, message: "Invalid email" },
               })}
             />
             {errors.email && (
@@ -146,7 +134,7 @@ function RegisterPage() {
 
           <div className="space-y-2">
             <Label className="text-slate-ink">Role</Label>
-            <div className="grid grid-cols-2 gap-2 rounded-1g border border-input bg-secondary/50 p-1">
+            <div className="grid grid-cols-2 gap-2 rounded-lg border border-input bg-secondary/50 p-1">
               <RoleOption
                 active={role === "buyer"}
                 onClick={() => setRole("buyer")}
@@ -157,7 +145,7 @@ function RegisterPage() {
                 active={role === "seller"}
                 onClick={() => setRole("seller")}
                 icon={<Tag className="h-4 w-4" />}
-                label="Sell Safelly"
+                label="Sell Safely"
               />
             </div>
           </div>

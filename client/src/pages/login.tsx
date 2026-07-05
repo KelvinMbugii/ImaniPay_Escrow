@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
@@ -11,19 +11,7 @@ import { toast } from "sonner";
 
 type LoginForm = { emailOrPhone: string; password: string };
 
-export const Route = createFileRoute("/login")({
-    head: () => ({
-        meta: [
-            { title: "Log In - ImaniPay"},
-            { name: "description", content: "Log in to your ImaniPay secure escrow account."},
-            { property: "og:title", content: "Log In - ImaniPay"},
-            { property: "og: description", content: "Log in to your ImaniPay secure escrow account."},
-        ],
-    }),
-    component: LoginPage,
-});
-
-function LoginPage() {
+export default function LoginPage() {
     const [showPw, setShowPw] = useState(false);
     const { login } = useAuth();
     const navigate = useNavigate();
@@ -35,7 +23,7 @@ function LoginPage() {
         try {
             await login(values);
             toast.success("Welcome back!");
-            navigate({ to: "/"});
+            navigate("/");
         } catch {
             toast.error("Login failed. Please check your credentials.");
         }
@@ -82,12 +70,12 @@ function LoginPage() {
                         autoComplete="current-password"
                         placeholder="........"
                         className="h-12 bg-surface pr-11"
-                        {...register{"password", {required: "Required", minLength: { value:6, message: "Min 6 characters"}}}}
+                        {...register("password", { required: "Required", minLength: { value: 6, message: "Min 6 characters" } })}
                     />
                     <button
                         type="button"
                         onClick={() => setShowPw((s) => !s)}
-                        className="absolute insert-y-0 right-3 flex items-center text-muted-foreground hover:text-slate-ink"
+                        className="absolute inset-y-0 right-3 flex items-center text-muted-foreground hover:text-slate-ink"
                         aria-label={showPw ? "Hide password" : "Show password"}
                     >
                     {showPw ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}

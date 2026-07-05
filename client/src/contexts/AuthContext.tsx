@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState type ReactNode} from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode} from "react";
 
 type Role = "buyer" | "seller";
 
@@ -28,10 +28,31 @@ interface AuthState {
     logout: () => void;
 }
 
+interface AuthResponse {
+    accessToken: string;
+    user: Omit<User, "phone" | "role"> & partial<Pick<User, "phone" | "role">>;
+}
 const AuthContext = createContext<AuthState | undefined>(undefined);
 
 const STORAGE_KEY = "imanipay_user";
 const TOKEN_KEY = "imanipay_token";
+const API_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:3000";
+
+async function postAuth(path: "login" | "register", body: unknown): Promise<AuthResponse> {
+    const res = await fetch(`${API_BASE_URL}/auth/${path}`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+    });
+    if (!res.ok) {
+        const message = await res.text();
+        throw new Error(message || `Unable to ${path}`);
+    }
+
+    return res.json() as Promise<AuthResponse>;
+}
 
 export function AuthProvider({ children } : { children:ReactNode}){
     const [user, setUser] = useState<User | null>(null);
@@ -39,12 +60,12 @@ export function AuthProvider({ children } : { children:ReactNode}){
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        if (typeof window === "undefined") return;
-        try {
-            const raw = window.localStorage.getItem(STORAGE_KEY);
-            const t = window.localStorage.getItem(TOKEN_KEY);
-            if (raw) setUser (JSON.parse(raw));
-            if (t) setToken(t);
+        try{
+            const rawUser = window.localStorage.getItem(STORAGE_KEY);
+            const rawToken = window.localStorage.getItem(TOKEN_KEY);
+
+            if (rawUser) setUser (JSON.parse(rawUser) as User);
+            if (rawToken) setToken(rawToken);
         } catch {
             /* ignore */
         } finally {
@@ -52,49 +73,35 @@ export function AuthProvider({ children } : { children:ReactNode}){
         }
     }, []);
 
-    const persist = (u: User | null, t: string | null) => {
-        setUser(u);
-        setToken(t);
-        if (typeof window === "undefined") return;
-        if (u && t) {
-            window.localStorage.setItem(STORAGE_KEY, JSON.stringify(u));
-            window.localStorage.setItem(TOKEN_KEY, t);
-        } else {
-            window.localStorage.removeItem(STORAGE_KEY);
-            window.localStorage.removeItem(TOKEN_KEY);
+     const persist = useCallback((nextUser: User | null, nextToken: string | null) => {
+        setUser(nextUser);
+        setToken(nextToken);
 
+        if (nextUser && nextToken) {
+        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(nextUser));
+        window.localStorage.setItem(TOKEN_KEY, nextToken);
+        return;
         }
-    };
-    
-    const login: AuthState["login"] = useCallback(async ({ emailOrPhone }) => {
-        // TODO
-        await new Promise((r) => setTimeout(r, 600));
-        persist(
-            {
-                id:"demo",
-                firstName: "John",
-                lastName: "Doe",
-                email: emailOrPhone.includes("@") ? emailOrPhone : "john@imanipay.co",
-                role: "buyer",
-            },
-            "demo-token"
-        );
+
+        window.localStorage.removeItem(STORAGE_KEY);
+        window.localStorage.removeItem(TOKEN_KEY);
     }, []);
 
-    const register: AuthState["register"] = useCallback(async(payload) => {
-        await new Promise((r) => setTimeout(r, 700));
-        persist(
-            {
-                id: "demo",
-                firstName: payload.firstName,
-                lastName: payload.lastName,
-                email: payload.email,
-                phone: payload.phone,
-                role: payload.role,
-            },
-            "demo-token",
-        );
-    }, []);
+    const login: AuthState["login"] = useCallback(
+        async ({ emailOrPhone, password }) => {
+        const data = await postAuth("login", { email: emailOrPhone, password });
+        persist(data.user, data.accessToken);
+        },
+        [persist],
+    );
+
+    const register: AuthState["register"] = useCallback(
+        async ({ firstName, lastName, email, password, phone, role }) => {
+        const data = await postAuth("register", { firstName, lastName, email, password });
+        persist({ ...data.user, phone, role }, data.accessToken);
+        },
+        [persist],
+    );
 
     const logout = useCallback(() => persist(null, null), []);
 
