@@ -1,10 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
-
-export const Route = createFileRoute("/_authenticated/documents")({
-  component: Page,
-});
-
-function Page() {
+export default function Page() {
   return (
     <div className="mx-auto max-w-7xl">
       <h1 className="text-2xl font-bold tracking-tight text-slate-ink capitalize">

@@ -1,36 +1,18 @@
 import { Navigate, Route, BrowserRouter as Router, Routes,} from "react-router-dom";
 import { Toaster } from "sonner";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import DashboardLayout from "./pages/authenticated";
+import DashboardHome from "./pages/index";
+import CounterpartiesPage from "./pages/counterparties";
+import DocumentsPage from "./pages/documents";
+import SettingsPage from "./pages/settings";
+import SupportPage from "./pages/support";
+import TransactionsPage from "./pages/transactions";
+import WalletPage from "./pages/wallet";
 import LoginPage from "./pages/login";
 import RegisterPage from "./pages/register";
+import WelcomePage from "./pages/welcome";
 
-function HomePage() {
-  const { user, logout } = useAuth();
-
-  return (
-    <main className="min-h-screen bg-canvas px-6 py-10 text-slate-ink">
-      <section className="mx-auto max-w-3xl rounded-2xl bg-surface p-8 shadow-sm ring-1 ring-black/5">
-        <p className="text-sm font-semibold uppercase tracking-wide text-emerald">
-          ImaniPay Escrow
-        </p>
-        <h1 className="mt-3 text-3xl font-bold">
-          Welcome{user ? `, ${user.firstName}` : ""}.
-        </h1>
-        <p className="mt-3 text-muted-foreground">
-          Your secure escrow dashboard is ready. Start by creating transactions,
-          tracking payments, and managing buyer or seller milestones.
-        </p>
-        <button
-          type="button"
-          onClick={logout}
-          className="mt-6 rounded-md bg-emerald px-4 py-2 text-sm font-semibold text-emerald-foreground hover:bg-emerald/90"
-        >
-          Log out
-        </button>
-      </section>
-    </main>
-  );
-}
 
 function ProtectedRoute() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -43,7 +25,7 @@ function ProtectedRoute() {
     );
   }
 
-  return isAuthenticated ? <HomePage /> : <Navigate to="/login" replace />;
+  return isAuthenticated ? <DashboardLayout /> : <Navigate to="/login" replace />;
 }
 
 function PublicOnlyRoute({ children }: { children: React.ReactNode }) {
@@ -65,7 +47,16 @@ export default function App() {
     <AuthProvider>
       <Router>
         <Routes>
-          <Route path="/" element={<ProtectedRoute />} />
+          <Route path="/welcome" element={<WelcomePage />} />
+          <Route element={<ProtectedRoute />}>
+            <Route index element={<DashboardHome />} />
+            <Route path="transactions" element={<TransactionsPage />} />
+            <Route path="wallet" element={<WalletPage />} />
+            <Route path="counterparties" element={<CounterpartiesPage />} />
+            <Route path="documents" element={<DocumentsPage />} />
+            <Route path="settings" element={<SettingsPage />} />
+            <Route path="support" element={<SupportPage />} />
+          </Route>
           <Route
             path="/login"
             element={

@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { Link } from "react-router-dom";
 import {
   ArrowUpRight,
   ArrowDownRight,
@@ -9,19 +9,6 @@ import {
   Plus,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-
-export const Route = createFileRoute("/_authenticated/")({
-  head: () => ({
-    meta: [
-      { title: "Dashboard — ImaniPay" },
-      {
-        name: "description",
-        content: "Your escrow overview, balances, and recent activity.",
-      },
-    ],
-  }),
-  component: DashboardHome,
-});
 
 const metrics = [
   {
@@ -96,7 +83,7 @@ const statusStyle: Record<string, string> = {
   DISPUTED: "bg-red-500/10 text-red-600",
 };
 
-function DashboardHome() {
+export default function DashboardHome() {
   const { user } = useAuth();
 
   return (
