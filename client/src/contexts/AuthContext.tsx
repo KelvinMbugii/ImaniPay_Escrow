@@ -9,6 +9,20 @@ import {
 
 type Role = "buyer" | "seller";
 
+type LoginPayload = {
+  emailOrPhone: string;
+  password: string;
+};
+
+type RegisterPayload = {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  role: Role;
+  password: string;
+};
+
 export interface User {
   id: string;
   firstName: string;
@@ -23,15 +37,8 @@ interface AuthState {
   token: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (payLoad: { emailOrPhone: string; password: string }) => Promise<void>;
-  register: (payLoad: {
-    firstName: string;
-    lastName: string;
-    email: string;
-    phone: string;
-    role: Role;
-    password: string;
-  }) => Promise<void>;
+  login: (payload: LoginPayload) => Promise<void>;
+  register: (payload: RegisterPayload) => Promise<void>;
   logout: () => void;
 }
 
@@ -39,91 +46,133 @@ interface AuthResponse {
   accessToken: string;
   user: Omit<User, "phone" | "role"> & Partial<Pick<User, "phone" | "role">>;
 }
+
+type StoredSession = {
+  user: User | null;
+  token: string | null;
+};
+
 const AuthContext = createContext<AuthState | undefined>(undefined);
 
 const STORAGE_KEY = "imanipay_user";
 const TOKEN_KEY = "imanipay_token";
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "/api/v1";
+const DEFAULT_API_BASE_URL = "http://localhost:3000/api/v1";
+const API_BASE_URL = (
+  import.meta.env.VITE_API_BASE_URL ?? DEFAULT_API_BASE_URL
+).replace(/\/$/, "");
+
+function readStoredSession(): StoredSession {
+  const rawUser = window.localStorage.getItem(STORAGE_KEY);
+  const token = window.localStorage.getItem(TOKEN_KEY);
+
+  return {
+    user: rawUser ? (JSON.parse(rawUser) as User) : null,
+    token,
+  };
+}
+
+function writeStoredSession({ user, token }: StoredSession) {
+  if (user && token) {
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
+    window.localStorage.setItem(TOKEN_KEY, token);
+    return;
+  }
+
+  window.localStorage.removeItem(STORAGE_KEY);
+  window.localStorage.removeItem(TOKEN_KEY);
+}
+
+async function readErrorMessage(response: Response, fallback: string) {
+  const contentType = response.headers.get("content-type") ?? "";
+
+  if (contentType.includes("application/json")) {
+    const body = (await response.json()) as { message?: string | string[] };
+
+    if (Array.isArray(body.message)) return body.message.join(" ");
+    if (body.message) return body.message;
+  }
+
+  const message = await response.text();
+  return message || fallback;
+}
 
 async function postAuth(
   path: "login" | "register",
   body: unknown,
 ): Promise<AuthResponse> {
-  const res = await fetch(`${API_BASE_URL}/auth/${path}`, {
+  const response = await fetch(`${API_BASE_URL}/auth/${path}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify(body),
   });
-  if (!res.ok) {
-    const message = await res.text();
-    throw new Error(message || `Unable to ${path}`);
+
+  if (!response.ok) {
+    const message = await readErrorMessage(response, `Unable to ${path}`);
+    throw new Error(message);
   }
 
-  return res.json() as Promise<AuthResponse>;
+  return response.json() as Promise<AuthResponse>;
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [{ user, token }, setSession] = useState<{
-    user: User | null;
-    token: string | null;
-  }>(() => {
+  const [{ user, token }, setSession] = useState<StoredSession>(() => {
     try {
-      const rawUser = window.localStorage.getItem(STORAGE_KEY);
-      const rawToken = window.localStorage.getItem(TOKEN_KEY);
-
-      return {
-        user: rawUser ? (JSON.parse(rawUser) as User) : null,
-        token: rawToken,
-      };
+      return readStoredSession();
     } catch {
       return { user: null, token: null };
     }
   });
-  const [isLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const persist = useCallback(
-    (nextUser: User | null, nextToken: string | null) => {
-      setSession({ user: nextUser, token: nextToken });
+  const persist = useCallback((nextSession: StoredSession) => {
+    setSession(nextSession);
+    writeStoredSession(nextSession);
+  }, []);
 
-      if (nextUser && nextToken) {
-        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(nextUser));
-        window.localStorage.setItem(TOKEN_KEY, nextToken);
-        return;
-      }
-
-      window.localStorage.removeItem(STORAGE_KEY);
-      window.localStorage.removeItem(TOKEN_KEY);
-    },
-    [],
-  );
-
-  const login: AuthState["login"] = useCallback(
+  const login = useCallback<AuthState["login"]>(
     async ({ emailOrPhone, password }) => {
-      const data = await postAuth("login", { email: emailOrPhone, password });
-      persist(
-        { ...data.user, role: data.user.role ?? "buyer" },
-        data.accessToken,
-      );
+      setIsLoading(true);
+
+      try {
+        const data = await postAuth("login", { email: emailOrPhone, password });
+        persist({
+          user: { ...data.user, role: data.user.role ?? "buyer" },
+          token: data.accessToken,
+        });
+      } finally {
+        setIsLoading(false);
+      }
     },
     [persist],
   );
 
-  const register: AuthState["register"] = useCallback(
+  const register = useCallback<AuthState["register"]>(
     async ({ firstName, lastName, email, password, phone, role }) => {
-      const data = await postAuth("register", {
-        firstName,
-        lastName,
-        email,
-        password,
-      });
-      persist({ ...data.user, phone, role }, data.accessToken);
+      setIsLoading(true);
+
+      try {
+        const data = await postAuth("register", {
+          firstName,
+          lastName,
+          email,
+          password,
+        });
+        persist({
+          user: { ...data.user, phone, role },
+          token: data.accessToken,
+        });
+      } finally {
+        setIsLoading(false);
+      }
     },
     [persist],
   );
 
-  const logout = useCallback(() => persist(null, null), [persist]);
+  const logout = useCallback(() => {
+    persist({ user: null, token: null });
+  }, [persist]);
 
   const value = useMemo<AuthState>(
     () => ({
@@ -142,7 +191,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 }
 
 export function useAuth() {
-  const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error("useAuth must be used within AuthProvider");
-  return ctx;
+  const context = useContext(AuthContext);
+
+  if (!context) {
+    throw new Error("useAuth must be used within AuthProvider");
+  }
+
+  return context;
 }
