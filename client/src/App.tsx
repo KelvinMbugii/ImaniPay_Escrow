@@ -39,7 +39,7 @@ function PublicOnlyRoute({ children }: { children: React.ReactNode }) {
     );
   }
 
-  return isAuthenticated ? <Navigate to="/" replace /> : children;
+  return isAuthenticated ? <Navigate to="/dashboard" replace /> : children;
 }
 
 export default function App() {
@@ -47,13 +47,14 @@ export default function App() {
     <AuthProvider>
       <Router>
         <Routes>
-          <Route path="/welcome" element={<WelcomePage />} />
-          <Route element={<ProtectedRoute />}>
+          <Route path="/" element={<WelcomePage />} />
+          <Route path="/welcome" element={<Navigate to="/" replace />} />
+          <Route path="/dashboard" element={<ProtectedRoute />}>
             <Route index element={<DashboardHome />} />
             <Route path="transactions" element={<TransactionsPage />} />
             <Route path="wallet" element={<WalletPage />} />
-            <Route path="counterparties" element={<CounterpartiesPage />} />
             <Route path="documents" element={<DocumentsPage />} />
+            <Route path="counterparties" element={<CounterpartiesPage />} />
             <Route path="settings" element={<SettingsPage />} />
             <Route path="support" element={<SupportPage />} />
           </Route>

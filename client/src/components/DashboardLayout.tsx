@@ -20,16 +20,16 @@ import { useAuth } from "../contexts/AuthContext";
 import { Logo } from "../components/Logo";
 
 const nav = [
-  { to: "/", label: "Dashboard", icon: LayoutDashboard, exact: true },
-  { to: "/transactions", label: "Transactions", icon: ArrowLeftRight },
-  { to: "/wallet", label: "Wallet", icon: Wallet },
-  { to: "/counterparties", label: "Counterparties", icon: Users },
-  { to: "/documents", label: "Documents", icon: FileText },
+  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard, exact: true },
+  { to: "/dashboard/transactions", label: "Transactions", icon: ArrowLeftRight },
+  { to: "/dashboard/wallet", label: "Wallet", icon: Wallet },
+  { to: "/dashboard/counterparties", label: "Counterparties", icon: Users },
+  { to: "/dashboard/documents", label: "Documents", icon: FileText },
 ];
 
 const secondary = [
-  { to: "/settings", label: "Settings", icon: Settings },
-  { to: "/support", label: "Support", icon: LifeBuoy },
+  { to: "/dashboard/settings", label: "Settings", icon: Settings },
+  { to: "/dashboard/support", label: "Support", icon: LifeBuoy },
 ];
 
 export function DashboardLayout() {
@@ -73,7 +73,7 @@ export function DashboardLayout() {
         }`}
       >
         <div className="flex h-16 items-center justify-between px-5 border-b border-white/10">
-          <Link to="/" className="inline-flex items-center">
+          <Link to="/dashboard" className="inline-flex items-center">
             <Logo className="text-base" />
           </Link>
           <button
@@ -87,7 +87,7 @@ export function DashboardLayout() {
 
         <div className="px-4 py-4">
           <Link
-            to="/transactions"
+            to="/dashboard/transactions"
             className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-emerald px-3 py-2.5 text-sm font-semibold text-emerald-foreground hover:opacity-95"
           >
             <Plus className="h-4 w-4" /> New Escrow
@@ -210,7 +210,7 @@ export function DashboardLayout() {
                   onMouseLeave={() => setMenuOpen(false)}
                 >
                   <Link
-                    to="/settings"
+                    to="/dashboard/settings"
                     className="block px-4 py-2.5 text-sm hover:bg-canvas"
                     onClick={() => setMenuOpen(false)}
                   >

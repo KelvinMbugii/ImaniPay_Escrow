@@ -99,7 +99,7 @@ export default function DashboardHome() {
           </p>
         </div>
         <Link
-          to="/transactions"
+          to="/dashboard/transactions"
           className="inline-flex items-center gap-2 rounded-lg bg-emerald px-4 py-2.5 text-sm font-semibold text-emerald-foreground shadow-sm hover:opacity-95"
         >
           <Plus className="h-4 w-4" /> New Escrow
@@ -156,7 +156,7 @@ export default function DashboardHome() {
               Recent transactions
             </h2>
             <Link
-              to="/transactions"
+              to="/dashboard/transactions"
               className="text-sm font-medium text-emerald hover:underline"
             >
               View all
@@ -203,7 +203,7 @@ export default function DashboardHome() {
               releases.
             </p>
             <Link
-              to="/settings"
+              to="/dashboard/settings"
               className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-gold hover:underline"
             >
               Manage verification <ArrowUpRight className="h-3.5 w-3.5" />
@@ -216,21 +216,21 @@ export default function DashboardHome() {
             </h3>
             <div className="mt-4 space-y-2">
               <Link
-                to="/transactions"
+                to="/dashboard/transactions"
                 className="flex items-center justify-between rounded-lg px-3 py-2.5 text-sm hover:bg-canvas"
               >
                 <span>Create new escrow</span>
                 <ArrowUpRight className="h-4 w-4 text-slate-ink/40" />
               </Link>
               <Link
-                to="/wallet"
+                to="/dashboard/wallet"
                 className="flex items-center justify-between rounded-lg px-3 py-2.5 text-sm hover:bg-canvas"
               >
                 <span>Top up wallet</span>
                 <ArrowUpRight className="h-4 w-4 text-slate-ink/40" />
               </Link>
               <Link
-                to="/counterparties"
+                to="/dashboard/counterparties"
                 className="flex items-center justify-between rounded-lg px-3 py-2.5 text-sm hover:bg-canvas"
               >
                 <span>Invite a counterparty</span>

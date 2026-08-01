@@ -23,7 +23,7 @@ export default function LoginPage() {
         try {
             await login(values);
             toast.success("Welcome back!");
-            navigate("/");
+            navigate("/dashboard");
         } catch {
             toast.error("Login failed. Please check your credentials.");
         }

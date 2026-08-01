@@ -34,7 +34,7 @@ export default function RegisterPage() {
         try {
             await signup({...values, role});
             toast.success("Account created!");
-            navigate("/");
+            navigate("/dashboard");
         } catch {
             toast.error("Registration failed. Try again.");
         }

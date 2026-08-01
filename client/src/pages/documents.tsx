@@ -227,7 +227,7 @@ export default function DocumentsPage() {
                   <button
                     key={d.id}
                     onClick={() => setSelectedId(d.id)}
-                    className={`flex w-full items-start gap-3 rounded-lg border p-3 text-left transition &{
+                    className={`flex w-full items-start gap-3 rounded-lg border p-3 text-left transition ${
                       active
                         ? "border-emerald bg-emerald/5"
                         : "border-slate-ink/10 bg-white hover:border-slate-ink/20"
